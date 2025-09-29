@@ -1,9 +1,21 @@
+'use client'
+
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Plane, Shield, Zap, Star, Users, Bot, ArrowRight, CheckCircle, Sparkles } from "lucide-react"
+import { Plane, Shield, Zap, Star, Users, Bot, ArrowRight, CheckCircle, Sparkles, User, Wallet, LogOut } from "lucide-react"
+import { LoginModal } from "@/components/login-modal"
+import { useAuth } from "@/components/auth-provider"
+import { useState } from "react"
 
 export default function HomePage() {
+  const { user, logout, isLoggedIn, isWalletConnected, walletAddress } = useAuth()
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
+
+  const formatWalletAddress = (address: string) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Navigation */}
@@ -14,7 +26,7 @@ export default function HomePage() {
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <Plane className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-bold">APETour</span>
+              <span className="text-xl font-bold">Ape Travel Portal</span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
               <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
@@ -26,10 +38,51 @@ export default function HomePage() {
               <a href="#partners" className="text-muted-foreground hover:text-foreground transition-colors">
                 Partners
               </a>
-              <Button variant="outline" size="sm">
-                Login
-              </Button>
-              <Button size="sm">Get Started</Button>
+              {isLoggedIn && user ? (
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2 text-sm">
+                    <User className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-muted-foreground">{user.email}</span>
+                  </div>
+                  {user.walletAddress && (
+                    <div className="flex items-center space-x-2 text-sm">
+                      <Wallet className={`w-4 h-4 ${isWalletConnected ? 'text-green-500' : 'text-muted-foreground'}`} />
+                      <span className={`font-mono ${isWalletConnected ? 'text-green-500' : 'text-muted-foreground'}`}>
+                        {formatWalletAddress(user.walletAddress)}
+                      </span>
+                      {isWalletConnected && (
+                        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                          Connected
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  <Button variant="outline" size="sm" onClick={logout}>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Button variant="outline" size="sm" onClick={() => setIsLoginModalOpen(true)}>
+                    Login
+                  </Button>
+                  <Button size="sm">Get Started</Button>
+                </>
+              )}
+            </div>
+            {/* Mobile actions */}
+            <div className="md:hidden">
+              {isLoggedIn ? (
+                <Button variant="outline" size="sm" onClick={logout}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </Button>
+              ) : (
+                <Button size="sm" onClick={() => setIsLoginModalOpen(true)}>
+                  Login
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -78,12 +131,12 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-2xl font-bold mb-4">{"Discover Amazing Destinations"}</h2>
-            <p className="text-muted-foreground">{"Explore the world with APETour's curated travel experiences"}</p>
+            <p className="text-muted-foreground">{"Explore the world with Ape Travel Portal's curated travel experiences"}</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="relative group overflow-hidden rounded-lg">
               <img
-                src="images/city-skyline.png"
+                src="/placeholder.jpg"
                 alt="City destination"
                 className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
               />
@@ -325,7 +378,7 @@ export default function HomePage() {
               <div className="relative">
                 <img
                   src="/modern-travel-app-interface-showing-booking-dashbo.jpg"
-                  alt="APETour App Interface"
+                  alt="Ape Travel Portal App Interface"
                   className="w-full rounded-2xl shadow-2xl"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent rounded-2xl"></div>
@@ -457,8 +510,8 @@ export default function HomePage() {
           <h2 className="text-3xl sm:text-4xl font-bold mb-6 text-white">
             {"Ready to revolutionize your travel experience?"}
           </h2>
-          <p className="text-xl text-white/90 mb-8">
-            {"Join thousands of travelers already using APETour to plan, book, and earn rewards seamlessly."}
+              <p className="text-xl text-white/90 mb-8">
+            {"Join thousands of travelers already using Ape Travel Portal to plan, book, and earn rewards seamlessly."}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="text-lg px-8 py-6 bg-white text-primary hover:bg-white/90">
@@ -485,7 +538,7 @@ export default function HomePage() {
                 <div className="w-6 h-6 bg-primary rounded flex items-center justify-center">
                   <Plane className="w-4 h-4 text-primary-foreground" />
                 </div>
-                <span className="font-bold">APETour</span>
+                <span className="font-bold">Ape Travel Portal</span>
               </div>
               <p className="text-sm text-muted-foreground">
                 {"Revolutionizing travel with Web3 technology on Apechain."}
@@ -553,10 +606,16 @@ export default function HomePage() {
             </div>
           </div>
           <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
-            <p>{"© 2025 APETour. All rights reserved. Built on Apechain."}</p>
+            <p>{"© 2025 Ape Travel Portal. All rights reserved. Built on Apechain."}</p>
           </div>
         </div>
       </footer>
+
+      {/* Login Modal */}
+      <LoginModal 
+        open={isLoginModalOpen} 
+        onOpenChange={setIsLoginModalOpen} 
+      />
     </div>
   )
 }
